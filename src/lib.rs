@@ -16,7 +16,11 @@ impl<T> Future for Ready<T> {
     type Output = T;
 
     fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let value = self.get_mut().value.take().expect("");
+        let value = self
+            .get_mut()
+            .value
+            .take()
+            .expect("polled after completion");
         Poll::Ready(value)
     }
 }
@@ -24,4 +28,35 @@ impl<T> Future for Ready<T> {
 #[allow(dead_code)]
 fn ready<T>(value: T) -> Ready<T> {
     Ready { value: Some(value) }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::task::{RawWaker, RawWakerVTable, Waker};
+
+    fn dummy_waker() -> Waker {
+        static VTABLE: RawWakerVTable = RawWakerVTable::new(clone, no_op, no_op, no_op);
+
+        fn no_op(_: *const ()) {}
+        fn clone(_: *const ()) -> RawWaker {
+            RawWaker::new(std::ptr::null(), &VTABLE)
+        }
+
+        unsafe { Waker::from_raw(RawWaker::new(std::ptr::null(), &VTABLE)) }
+    }
+
+    #[test]
+    fn test_ready_future() {
+        let waker = dummy_waker();
+        let mut cx = Context::from_waker(&waker);
+
+        let mut fut = ready(42);
+        let pinned = Pin::new(&mut fut);
+
+        match pinned.poll(&mut cx) {
+            Poll::Ready(v) => assert_eq!(v, 42),
+            Poll::Pending => panic!("expected Ready"),
+        }
+    }
 }

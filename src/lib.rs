@@ -30,6 +30,11 @@ fn ready<T>(value: T) -> Ready<T> {
     Ready { value: Some(value) }
 }
 
+#[allow(dead_code)]
+struct CountDown {
+    count: u32,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

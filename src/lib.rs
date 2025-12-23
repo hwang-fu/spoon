@@ -9,10 +9,13 @@ struct Ready<T> {
     value: Option<T>,
 }
 
+impl<T> Unpin for Ready<T> {}
+
 impl<T> Future for Ready<T> {
     type Output = T;
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        // TODO: take the value and return Ready
+        let value = self.get_mut().value.take().expect("");
+        Poll::Ready(value)
     }
 }

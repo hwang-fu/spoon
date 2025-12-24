@@ -35,6 +35,20 @@ struct CountDown {
     count: u32,
 }
 
+impl Future for CountDown {
+    type Output = ();
+
+    fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
+        let this = self.get_mut();
+        if this.count == 0 {
+            Poll::Ready(())
+        } else {
+            this.count -= 1;
+            Poll::Pending
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

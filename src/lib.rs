@@ -56,6 +56,9 @@ fn countdown(count: u32) -> CountDown {
     CountDown { count }
 }
 
+#[allow(dead_code)]
+struct Executor;
+
 #[cfg(test)]
 mod tests {
     use super::*;

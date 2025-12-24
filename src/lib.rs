@@ -1,6 +1,6 @@
 // Spoon async runtime
 
-use std::future::{self, Future};
+use std::future::Future;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 
@@ -61,7 +61,8 @@ struct Executor;
 
 #[allow(dead_code)]
 impl Executor {
-    fn block_on<F: Future>(&self, _future: F) -> F::Output {
+    fn block_on<F: Future>(&self, future: F) -> F::Output {
+        let mut _boxed = Box::pin(future);
         todo!()
     }
 }

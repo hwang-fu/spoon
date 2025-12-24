@@ -51,6 +51,11 @@ impl Future for CountDown {
     }
 }
 
+#[allow(dead_code)]
+fn countdown(count: u32) -> CountDown {
+    CountDown { count }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -79,5 +84,24 @@ mod tests {
             Poll::Ready(v) => assert_eq!(v, 42),
             Poll::Pending => panic!("expected Ready"),
         }
+    }
+
+    #[test]
+    fn test_countdown_future() {
+        let waker = dummy_waker();
+        let mut cx = Context::from_waker(&waker);
+
+        let mut fut = countdown(3);
+        let mut poll_count = 0;
+
+        loop {
+            let pinned = Pin::new(&mut fut);
+            match pinned.poll(&mut cx) {
+                Poll::Pending => poll_count += 1,
+                Poll::Ready(()) => break,
+            }
+        }
+
+        assert_eq!(poll_count, 3);
     }
 }

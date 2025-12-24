@@ -35,6 +35,8 @@ struct CountDown {
     count: u32,
 }
 
+impl Unpin for CountDown {}
+
 impl Future for CountDown {
     type Output = ();
 

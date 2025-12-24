@@ -1,6 +1,6 @@
 // Spoon async runtime
 
-use std::future::Future;
+use std::future::{self, Future};
 use std::pin::Pin;
 use std::task::{Context, Poll};
 
@@ -58,6 +58,13 @@ fn countdown(count: u32) -> CountDown {
 
 #[allow(dead_code)]
 struct Executor;
+
+#[allow(dead_code)]
+impl Executor {
+    fn block_on<F: Future>(&self, _future: F) -> F::Output {
+        todo!()
+    }
+}
 
 #[cfg(test)]
 mod tests {
